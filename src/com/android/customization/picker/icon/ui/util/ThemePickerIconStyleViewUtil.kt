@@ -111,7 +111,7 @@ constructor(@ApplicationContext private val context: Context) : IconStyleViewUti
     }
 
     override fun getIcon(iconStyleModel: IconStyleModel?, shapePath: String?): Icon {
-        val previewIconPackageName = context.resources.getString(R.string.camera_package)
+        val previewIconPackageName = context.resources.getString(R.string.preview_icon_package)
         val appIconDrawable = ShapeIconViewBinder.loadAppIcon(context, previewIconPackageName)
         return Icon.Loaded(
             drawable =

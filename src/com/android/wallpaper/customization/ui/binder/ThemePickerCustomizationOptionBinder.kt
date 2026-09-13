@@ -404,7 +404,7 @@ constructor(private val defaultCustomizationOptionsBinder: DefaultCustomizationO
                                 }
                         } else {
                             val previewIconPackageName =
-                                view.context.resources.getString(R.string.camera_package)
+                                view.context.resources.getString(R.string.preview_icon_package)
                             val appIconDrawable =
                                 ShapeIconViewBinder.loadAppIcon(
                                     view.context,
