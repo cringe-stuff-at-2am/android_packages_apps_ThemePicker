@@ -97,4 +97,11 @@ constructor(@ApplicationContext private val context: Context) : IconStyleReposit
     override suspend fun setShouldShowAppLabels(shouldShowAppLabels: Boolean) {
         _shouldShowAppLabels.value = shouldShowAppLabels
     }
+
+    private val _shouldShowDrawerAppLabels = MutableStateFlow(true)
+    override val shouldShowDrawerAppLabels = _shouldShowDrawerAppLabels.asStateFlow()
+
+    override suspend fun setShouldShowDrawerAppLabels(shouldShowDrawerAppLabels: Boolean) {
+        _shouldShowDrawerAppLabels.value = shouldShowDrawerAppLabels
+    }
 }

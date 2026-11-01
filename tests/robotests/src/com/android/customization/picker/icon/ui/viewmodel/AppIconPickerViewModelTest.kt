@@ -713,6 +713,30 @@ class AppIconPickerViewModelTest {
             assertThat(isEnabled()).isNotEqualTo(initialValue)
         }
 
+    @Test
+    fun previewingShouldShowDrawerAppLabels_matchesRepositoryByDefault() =
+        testScope.runTest {
+            val repositoryShouldShowDrawerAppLabels =
+                collectLastValue(iconStyleRepository.shouldShowDrawerAppLabels).invoke()
+
+            val isEnabled = collectLastValue(underTest.previewingShouldShowDrawerAppLabels)
+
+            assertThat(isEnabled()).isEqualTo(repositoryShouldShowDrawerAppLabels)
+        }
+
+    @Test
+    fun toggleShouldShowDrawerAppLabels_togglesValue() =
+        testScope.runTest {
+            val isEnabled = collectLastValue(underTest.previewingShouldShowDrawerAppLabels)
+            val toggle = collectLastValue(underTest.toggleShouldShowDrawerAppLabels)
+
+            val initialValue = isEnabled()
+
+            toggle()?.invoke()
+
+            assertThat(isEnabled()).isNotEqualTo(initialValue)
+        }
+
     private fun TestScope.assertShapeItem(
         optionItem: OptionItemViewModel2<ShapeIconViewModel>?,
         key: String,

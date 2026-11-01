@@ -146,10 +146,17 @@ object AppIconFloatingSheetBinder {
         val themedIconEntry = view.requireViewById<ViewGroup>(R.id.themed_icon_toggle_entry)
         val themedIconTitle = view.requireViewById<TextView>(R.id.themed_icon_toggle_title)
         val themedIconBetaLabel = view.requireViewById<TextView>(R.id.themed_icon_beta_title)
-        val showAppLabelsTitle = view.requireViewById<TextView>(R.id.show_app_labels_title)
-        val showAppLabelsSwitch = view.requireViewById<MaterialSwitch>(R.id.show_app_labels_switch)
+        val showDesktopLabelsTitle = view.requireViewById<TextView>(R.id.show_desktop_labels_title)
+        val showDesktopLabelsSwitch =
+            view.requireViewById<MaterialSwitch>(R.id.show_desktop_labels_switch)
+        val showDrawerLabelsTitle = view.requireViewById<TextView>(R.id.show_drawer_labels_title)
+        val showDrawerLabelsSwitch =
+            view.requireViewById<MaterialSwitch>(R.id.show_drawer_labels_switch)
         ColorUpdateBinder.bind(
-            setColor = { color -> showAppLabelsTitle.setTextColor(color) },
+            setColor = { color ->
+                showDesktopLabelsTitle.setTextColor(color)
+                showDrawerLabelsTitle.setTextColor(color)
+            },
             color = colorUpdateViewModel.colorOnSurface,
             shouldAnimate = isFloatingSheetActive,
             lifecycleOwner = lifecycleOwner,
@@ -322,11 +329,11 @@ object AppIconFloatingSheetBinder {
                     launch {
                         var switchBinding: SwitchColorBinder.Binding? = null
                         viewModel.previewingShouldShowAppLabels.collect {
-                            showAppLabelsSwitch.isChecked = it
+                            showDesktopLabelsSwitch.isChecked = it
                             switchBinding?.destroy()
                             switchBinding =
                                 SwitchColorBinder.bind(
-                                    switch = showAppLabelsSwitch,
+                                    switch = showDesktopLabelsSwitch,
                                     isChecked = it,
                                     colorUpdateViewModel = colorUpdateViewModel,
                                     shouldAnimateColor = isFloatingSheetActive,
@@ -337,7 +344,29 @@ object AppIconFloatingSheetBinder {
 
                     launch {
                         viewModel.toggleShouldShowAppLabels.collect {
-                            showAppLabelsSwitch.setOnCheckedChangeListener { _, _ -> it.invoke() }
+                            showDesktopLabelsSwitch.setOnCheckedChangeListener { _, _ -> it.invoke() }
+                        }
+                    }
+
+                    launch {
+                        var switchBinding: SwitchColorBinder.Binding? = null
+                        viewModel.previewingShouldShowDrawerAppLabels.collect {
+                            showDrawerLabelsSwitch.isChecked = it
+                            switchBinding?.destroy()
+                            switchBinding =
+                                SwitchColorBinder.bind(
+                                    switch = showDrawerLabelsSwitch,
+                                    isChecked = it,
+                                    colorUpdateViewModel = colorUpdateViewModel,
+                                    shouldAnimateColor = isFloatingSheetActive,
+                                    lifecycleOwner = lifecycleOwner,
+                                )
+                        }
+                    }
+
+                    launch {
+                        viewModel.toggleShouldShowDrawerAppLabels.collect {
+                            showDrawerLabelsSwitch.setOnCheckedChangeListener { _, _ -> it.invoke() }
                         }
                     }
                 } else {

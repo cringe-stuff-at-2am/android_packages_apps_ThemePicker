@@ -252,7 +252,7 @@ constructor(
             .stateIn(
                 scope = backgroundScope,
                 started = SharingStarted.WhileSubscribed(),
-                initialValue = false,
+                initialValue = true,
             )
 
     override suspend fun setShouldShowAppLabels(shouldShowAppLabels: Boolean) {
@@ -268,15 +268,87 @@ constructor(
         }
     }
 
+    override val shouldShowDrawerAppLabels: Flow<Boolean> =
+        previewUtilsFlow
+            .flatMapLatest {
+                callbackFlow {
+                    var disposableHandle: DisposableHandle? = null
+                    if (it != null) {
+                        val contentObserver =
+                            object : ContentObserver(null) {
+                                override fun onChange(selfChange: Boolean) {
+                                    trySend(getShouldShowDrawerAppLabels(it))
+                                }
+                            }
+                        contentResolver.registerContentObserver(
+                            it.getUri(SET_HIDE_DRAWER_APP_LABELS),
+                            /* notifyForDescendants= */ true,
+                            contentObserver,
+                        )
+
+                        trySend(getShouldShowDrawerAppLabels(it))
+
+                        disposableHandle = DisposableHandle {
+                            contentResolver.unregisterContentObserver(contentObserver)
+                        }
+                    }
+                    awaitClose { disposableHandle?.dispose() }
+                }
+            }
+            .stateIn(
+                scope = backgroundScope,
+                started = SharingStarted.WhileSubscribed(),
+                initialValue = true,
+            )
+
+    private fun getShouldShowDrawerAppLabels(previewUtils: PreviewUtils): Boolean {
+        val cursor =
+            contentResolver.query(
+                previewUtils.getUri(HIDE_DRAWER_APP_LABELS),
+                /* projection= */ null,
+                /* selection= */ null,
+                /* selectionArgs= */ null,
+                /* sortOrder= */ null,
+            )
+        var shouldHideLabels = false
+        cursor?.use {
+            if (cursor.moveToNext()) {
+                val colIdx = cursor.getColumnIndex(COL_HIDE_APP_NAMES)
+                if (colIdx >= 0) {
+                    shouldHideLabels =
+                        (cursor.getInt(colIdx) == ENABLED)
+                }
+            }
+        }
+        return !shouldHideLabels
+    }
+
+    override suspend fun setShouldShowDrawerAppLabels(shouldShowDrawerAppLabels: Boolean) {
+        previewUtilsFlow.first()?.let {
+            val values = ContentValues()
+            values.put(COL_HIDE_APP_NAMES, !shouldShowDrawerAppLabels)
+            contentResolver.update(
+                it.getUri(SET_HIDE_DRAWER_APP_LABELS),
+                values,
+                /* where= */ null,
+                /* selectionArgs= */ null,
+            )
+        }
+    }
+
     companion object {
         const val ICON_THEMED = "icon_themed"
         const val SET_ICON_THEMED = "set_icon_themed"
         const val COL_ICON_THEMED_VALUE = "boolean_value"
-        // String for building uri when querying and updating the boolean to hide the app names
+        // String for building uri when querying and updating the boolean to hide the app names on desktop
         private const val HIDE_APP_LABELS = "workspace_items_label_hidden"
         // Key for applying the boolean to hide the app names on the home screen, to the system
         private const val SET_HIDE_APP_LABELS = "set_workspace_items_label_hidden"
-        // Key for querying the boolean to hide the app names on the home screen
+        // String for building uri when querying and updating the boolean to hide the app names on drawer
+        private const val HIDE_DRAWER_APP_LABELS = "drawer_items_label_hidden"
+        // Key for applying the boolean to hide the app names on the app drawer, to the system
+        private const val SET_HIDE_DRAWER_APP_LABELS = "set_drawer_items_label_hidden"
+        // Key for querying the boolean to hide the app names
         private const val COL_HIDE_APP_NAMES = "boolean_value"
         private const val ENABLED = 1
     }

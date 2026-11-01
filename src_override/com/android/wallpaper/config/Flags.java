@@ -16,4 +16,8 @@
 package com.android.wallpaper.config;
 
 public class Flags extends BaseFlags {
+    @Override
+    public boolean isHideAppLabelEnabled() {
+        return true;
+    }
 }

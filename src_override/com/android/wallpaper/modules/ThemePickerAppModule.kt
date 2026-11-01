@@ -38,6 +38,7 @@ import com.android.systemui.shared.customization.data.content.CustomizationProvi
 import com.android.systemui.shared.settings.data.repository.SecureSettingsRepository
 import com.android.systemui.shared.settings.data.repository.SystemSettingsRepository
 import com.android.wallpaper.config.BaseFlags
+import com.android.wallpaper.config.Flags
 import com.android.wallpaper.customization.ui.binder.ThemePickerCustomizationOptionsBinder
 import com.android.wallpaper.customization.ui.binder.ThemePickerToolbarBinder
 import com.android.wallpaper.customization.ui.util.ThemePickerCustomizationOptionUtil
@@ -313,7 +314,7 @@ abstract class ThemePickerAppModule {
         @Provides
         @Singleton
         fun provideFlags(): BaseFlags {
-            return object : BaseFlags() {}
+            return Flags()
         }
 
         @Provides
